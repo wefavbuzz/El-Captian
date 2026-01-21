@@ -1,0 +1,262 @@
+---
+/**
+ * Home Page (index.astro)
+ *
+ * Main landing page featuring:
+ * - Full-width hero section with store branding
+ * - Featured products grid
+ * - Store introduction/about section
+ * - Categories showcase
+ */
+
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import ProductCard from "../components/ProductCard.astro";
+
+// Import product data
+import products from "../data/products.json";
+
+// Get featured products
+const featuredProducts = products.filter((p) => p.featured).slice(0, 4);
+---
+
+<Layout
+  title="Captain Games Store – متجر ألعاب الكابتن | Premium Gaming Store"
+  description="Your ultimate destination for premium games and exclusive gaming products. Explore our collection of action, RPG, strategy and more!"
+>
+  <!-- Hero Section -->
+  <Hero />
+
+  <!-- Featured Products Section -->
+  <section id="featured" class="py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Section Header -->
+      <div class="text-center mb-12">
+        <h2
+          class="font-[var(--font-display)] text-3xl md:text-4xl lg:text-5xl font-bold mb-4"
+        >
+          <span class="text-gradient-primary">تصفح الألعاب</span>
+        </h2>
+        <p class="text-[var(--color-text-muted)] max-w-2xl mx-auto">
+          Discover More About Our Game Store – Make Your Child Happy
+        </p>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {featuredProducts.map((product) => <ProductCard {...product} />)}
+      </div>
+
+      <!-- View All CTA -->
+      <div class="text-center mt-12">
+        <a href="/catalog" class="btn-gaming btn-secondary">
+          View All Games
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Store Introduction Section -->
+  <section class="py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- Content -->
+        <div class="space-y-6">
+          <h2 class="font-[var(--font-display)] text-3xl md:text-4xl font-bold">
+            <span class="text-gradient-primary">Why Choose Captain Games?</span>
+          </h2>
+
+          <p class="text-[var(--color-text-secondary)] text-lg">
+            We're passionate gamers who curate only the best titles for our
+            community. From epic adventures to competitive arenas, we've got
+            something for every player.
+          </p>
+
+          <!-- Features List                <div class="p-6">
+                  <div class="flex items-start justify-between mb-2">
+                    <div>
+                      <h3 class="font-[var(--font-display)] font-bold text-xl mb-1 text-[var(--color-text-primary)] group-hover:text-[var(--color-primary-light)] transition-colors">
+                        {product.name}
+                      </h3>
+                      <p
+                        class="text-sm text-[var(--color-text-muted)]"
+                        dir="rtl"
+                      >
+                        {product.nameAr}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-1 bg-[var(--color-warning)]/10 text-[var(--color-warning)] px-2 py-1 rounded-full text-sm font-medium">
+                      <span>★</span>
+                      <span>{product.rating}</span>
+                    </div>
+                  </div>
+          <ul class="space-y-4">
+            <li class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-lg bg-[var(--color-primary)]/20 flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-[var(--color-primary-light)]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-[var(--color-text-primary)]">
+                  Curated Selection
+                </h4>
+                <p class="text-[var(--color-text-muted)] text-sm">
+                  Hand-picked games reviewed by our expert team
+                </p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-lg bg-[var(--color-secondary)]/20 flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-[var(--color-secondary-light)]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-[var(--color-text-primary)]">
+                  Instant Delivery
+                </h4>
+                <p class="text-[var(--color-text-muted)] text-sm">
+                  Get your game codes delivered instantly
+                </p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-lg bg-[var(--color-accent)]/20 flex items-center justify-center flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5 text-[var(--color-accent-light)]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-[var(--color-text-primary)]">
+                  24/7 Support
+                </h4>
+                <p class="text-[var(--color-text-muted)] text-sm">
+                  Our team is always here to help you
+                </p>
+              </div>
+            </li>
+          </ul>
+
+          <a href="/catalog" class="btn-gaming btn-primary inline-flex">
+            Start Exploring
+          </a>
+        </div>
+
+        <!-- Visual Element -->
+          <div class="relative">
+            <div
+              class="aspect-video rounded-2xl bg-gradient-to-br from-[var(--color-primary)]/20 via-[var(--color-secondary)]/10 to-[var(--color-accent)]/20 border-gaming flex flex-col items-center justify-center relative overflow-hidden"
+            >
+              <img
+                src="/images/hero-card.jpg"
+                alt="Captain Games"
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+              >
+              </div>
+              <p
+                class="font-[var(--font-display)] text-2xl font-bold text-white z-10 relative text-center px-6 mt-auto mb-8"
+              >
+                كتالوج الكابتن - إجعل طفلك سعيدآ
+              </p>
+            </div>
+
+            <!-- Floating elements -->
+            <div
+              class="absolute -top-4 -right-4 w-20 h-20 rounded-xl bg-[var(--color-primary)] flex items-center justify-center text-3xl animate-float"
+            >
+              🏆
+            </div>
+            <div
+              class="absolute -bottom-4 -left-4 w-16 h-16 rounded-xl bg-[var(--color-secondary)] flex items-center justify-center text-2xl animate-float"
+              style="animation-delay: 0.5s;"
+            >
+              ⚡
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    <section
+      class="py-16 md:py-24 bg-gradient-to-r from-[var(--color-primary)]/10 via-[var(--color-dark-800)] to-[var(--color-secondary)]/10"
+    >
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2
+          class="font-[var(--font-display)] text-3xl md:text-4xl font-bold mb-4"
+        >
+          Stay in the Game
+        </h2>
+        <p class="text-[var(--color-text-muted)] mb-8">
+          Subscribe to get updates on new releases, exclusive deals, and gaming
+          news.
+        </p>
+
+        <form class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            class="flex-1 bg-[var(--color-dark-700)] border border-[var(--color-dark-500)] rounded-lg px-4 py-3 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+          />
+          <button type="submit" class="btn-gaming btn-primary">
+            Subscribe
+          </button>
+        </form>
+      </div>
+    </section>
+  </section>
+</Layout>

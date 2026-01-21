@@ -1,0 +1,61 @@
+---
+/**
+ * Layout.astro - Main page layout component
+ * 
+ * Architecture Decision:
+ * This layout provides a consistent structure across all pages including:
+ * - HTML document structure with meta tags for SEO
+ * - Google Fonts loading for gaming typography
+ * - Navigation and footer components
+ * - Global styles integration
+ */
+
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { 
+  title = 'Captain Games Store – متجر ألعاب الكابتن',
+  description = 'Explore our premium collection of games and exclusive products. Your ultimate gaming destination.'
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#0d0d14" />
+  
+  <!-- SEO Meta Tags -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/images/logo.png" />
+  
+  <!-- Google Fonts - Gaming Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <title>{title}</title>
+</head>
+<body class="bg-noise min-h-screen flex flex-col">
+  <Navbar />
+  
+  <main class="flex-1">
+    <slot />
+  </main>
+  
+  <Footer />
+</body>
+</html>

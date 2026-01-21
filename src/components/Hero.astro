@@ -1,0 +1,193 @@
+---
+/**
+ * Hero.astro - Full-width hero section component
+ *
+ * Features:
+ * - Stunning gradient background with animated effects
+ * - Bilingual support (English + Arabic)
+ * - Responsive typography
+ * - Strong CTA button
+ * - Grid pattern overlay for gaming aesthetic
+ */
+
+interface Props {
+  title?: string;
+  titleAr?: string;
+  subtitle?: string;
+  subtitleAr?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const {
+  title = "Captain Games Store",
+  titleAr = "متجر ألعاب الكابتن",
+  subtitle = "Explore our premium collection of games and exclusive products",
+  subtitleAr = "اكتشف مجموعتنا المميزة من الألعاب والمنتجات الحصرية",
+  ctaText = "Browse Catalog",
+  ctaLink = "/catalog",
+} = Astro.props;
+---
+
+<section
+  class="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-grid-pattern"
+>
+  <!-- Animated Background Gradients -->
+  <div class="absolute inset-0 overflow-hidden">
+    <!-- Primary gradient blob -->
+    <div
+      class="absolute -top-40 -left-40 w-96 h-96 bg-[var(--color-primary)]/30 rounded-full blur-[120px] animate-pulse"
+    >
+    </div>
+
+    <!-- Secondary gradient blob -->
+    <div
+      class="absolute -bottom-40 -right-40 w-96 h-96 bg-[var(--color-secondary)]/30 rounded-full blur-[120px] animate-pulse"
+      style="animation-delay: 1s;"
+    >
+    </div>
+
+    <!-- Accent gradient blob -->
+    <div
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--color-accent)]/10 rounded-full blur-[150px]"
+    >
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div
+    class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 md:py-32"
+  >
+    <!-- Decorative elements -->
+    <div class="flex justify-center mb-6">
+      <img
+        src="/images/logo.png"
+        alt="Logo"
+        class="w-32 h-32 md:w-36 md:h-36 object-contain animate-float drop-shadow-xl"
+      />
+    </div>
+
+    <!-- Main Title -->
+    <h1
+      class="font-[var(--font-display)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4"
+    >
+      <span class="text-gradient-gaming">
+        {title}
+      </span>
+    </h1>
+
+    <!-- Arabic Title -->
+    <p
+      class="font-[var(--font-display)] text-2xl sm:text-3xl md:text-4xl text-[var(--color-text-secondary)] mb-8"
+      dir="rtl"
+    >
+      {titleAr}
+    </p>
+
+    <!-- Subtitle -->
+    <p
+      class="text-lg sm:text-xl md:text-2xl text-[var(--color-text-muted)] max-w-3xl mx-auto mb-6"
+    >
+      {subtitle}
+    </p>
+
+    <!-- Arabic Subtitle -->
+    <p
+      class="text-base sm:text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto mb-12"
+      dir="rtl"
+    >
+      {subtitleAr}
+    </p>
+
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href={ctaLink} class="btn-gaming btn-primary text-lg px-8 py-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+        </svg>
+        {ctaText}
+      </a>
+      <a href="#featured" class="btn-gaming btn-secondary text-lg px-8 py-4">
+        View Featured
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+      <div class="text-center">
+        <div
+          class="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[var(--color-primary-light)]"
+        >
+          2000+
+        </div>
+        <div class="text-[var(--color-text-muted)] text-sm mt-1">عميل</div>
+      </div>
+      <div class="text-center">
+        <div
+          class="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[var(--color-secondary-light)]"
+        >
+          24/7
+        </div>
+        <div class="text-[var(--color-text-muted)] text-sm mt-1">دعم فني</div>
+      </div>
+      <div class="text-center">
+        <div
+          class="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[var(--color-accent-light)]"
+        >
+          500+
+        </div>
+        <div class="text-[var(--color-text-muted)] text-sm mt-1">لعبة مرحة</div>
+      </div>
+      <div class="text-center">
+        <div
+          class="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[var(--color-success)]"
+        >
+          1000+
+        </div>
+        <div class="text-[var(--color-text-muted)] text-sm mt-1">
+          لعبة وأكثر
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-6 h-6 text-[var(--color-text-muted)]"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+    </svg>
+  </div>
+</section>

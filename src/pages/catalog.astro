@@ -1,0 +1,185 @@
+---
+/**
+ * Catalog Page (catalog.astro)
+ *
+ * Features:
+ * - Responsive product grid (mobile-first)
+ * - Category filtering via URL query params
+ * - Search functionality (client-side)
+ * - Sorting options
+ * - Smooth transitions and animations
+ */
+
+import Layout from "../layouts/Layout.astro";
+import ProductCard from "../components/ProductCard.astro";
+
+// Import data
+import products from "../data/products.json";
+// Filter products (placeholder for future search/filter logic)
+const filteredProducts = products;
+---
+
+<Layout
+  title="Game Catalog | Captain Games Store"
+  description="Browse our complete collection of premium games. Find your next gaming adventure."
+>
+  <!-- Page Header -->
+  <section
+    class="pt-24 pb-12 md:pt-32 md:pb-16 bg-gradient-to-b from-[var(--color-dark-900)] to-transparent"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1
+          class="font-[var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
+        >
+          <span class="text-gradient-primary"> Game Catalog </span>
+        </h1>
+        <p class="text-[var(--color-text-muted)] text-lg max-w-2xl mx-auto">
+          Discover your next gaming adventure from our premium collection
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters & Search Section -->
+  <section
+    class="py-6 border-b border-[var(--color-dark-500)] sticky top-16 md:top-20 z-40 bg-[var(--color-dark-800)]/95 backdrop-blur-lg"
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <!-- Search Box -->
+        <div class="relative w-full md:w-80">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search games..."
+            class="w-full bg-[var(--color-dark-700)] border border-[var(--color-dark-500)] rounded-lg pl-10 pr-4 py-2.5 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-muted)]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+
+        <!-- Category Filters (Removed) -->
+        <div class="hidden"></div>
+
+        <!-- Results Count -->
+        <div class="text-[var(--color-text-muted)] text-sm hidden lg:block">
+          <span id="results-count">{filteredProducts.length}</span> games found
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="py-12 md:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- No Results Message (hidden by default) -->
+      <div id="no-results" class="hidden text-center py-16">
+        <div class="text-6xl mb-4">🎮</div>
+        <h3
+          class="font-[var(--font-display)] text-2xl font-bold text-[var(--color-text-primary)] mb-2"
+        >
+          No games found
+        </h3>
+        <p class="text-[var(--color-text-muted)]">
+          Try adjusting your search or filter criteria
+        </p>
+        <a href="/catalog" class="btn-gaming btn-primary mt-6 inline-flex">
+          View All Games
+        </a>
+      </div>
+
+      <!-- Products Grid -->
+      <div
+        id="products-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        {
+          filteredProducts.map((product) => (
+            <div class="product-item" data-name={product.name.toLowerCase()}>
+              <ProductCard {...product} />
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- Load More Button (for future pagination) -->
+      {
+        filteredProducts.length > 8 && (
+          <div class="text-center mt-12">
+            <button class="btn-gaming btn-secondary">
+              Load More Games
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          </div>
+        )
+      }
+    </div>
+  </section>
+</Layout>
+
+<!-- Client-side Search Script -->
+<script>
+  const searchInput = document.getElementById(
+    "search-input",
+  ) as HTMLInputElement;
+  const productsGrid = document.getElementById("products-grid");
+  const noResults = document.getElementById("no-results");
+  const resultsCount = document.getElementById("results-count");
+  const productItems = document.querySelectorAll(".product-item");
+
+  searchInput?.addEventListener("input", (e) => {
+    const searchTerm = (e.target as HTMLInputElement).value
+      .toLowerCase()
+      .trim();
+    let visibleCount = 0;
+
+    productItems.forEach((item) => {
+      const name = item.getAttribute("data-name") || "";
+      const isVisible = name.includes(searchTerm);
+
+      (item as HTMLElement).style.display = isVisible ? "block" : "none";
+      if (isVisible) visibleCount++;
+    });
+
+    // Update results count
+    if (resultsCount) {
+      resultsCount.textContent = visibleCount.toString();
+    }
+
+    // Show/hide no results message
+    if (productsGrid && noResults) {
+      if (visibleCount === 0) {
+        productsGrid.classList.add("hidden");
+        noResults.classList.remove("hidden");
+      } else {
+        productsGrid.classList.remove("hidden");
+        noResults.classList.add("hidden");
+      }
+    }
+  });
+</script>

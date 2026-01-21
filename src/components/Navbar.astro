@@ -1,0 +1,117 @@
+---
+/**
+ * Navbar.astro - Responsive navigation component
+ * 
+ * Features:
+ * - Responsive design with mobile hamburger menu
+ * - Sticky positioning with backdrop blur
+ * - Gaming-inspired styling with gradient accents
+ * - Smooth transitions and hover effects
+ */
+
+const navLinks = [
+  { href: '/', label: 'Home', labelAr: 'الرئيسية' },
+  { href: '/catalog', label: 'Catalog', labelAr: 'الكتالوج' },
+  { href: '/admin', label: 'Admin', labelAr: 'الإدارة' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[var(--color-dark-800)]/90 backdrop-blur-lg border-b border-[var(--color-dark-500)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 md:h-20">
+      
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 group">
+        <img 
+          src="/images/logo.png"
+          alt="El Captain Games Store" 
+          class="h-12 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300"
+        />
+      </a>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:flex items-center gap-8">
+        {navLinks.map((link) => (
+          <a 
+            href={link.href}
+            class={`relative font-medium text-sm uppercase tracking-wider transition-colors duration-300
+              ${currentPath === link.href 
+                ? 'text-[var(--color-primary-light)]' 
+                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+              }
+            `}
+          >
+            {link.label}
+            {currentPath === link.href && (
+              <span class="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]"></span>
+            )}
+          </a>
+        ))}
+      </div>
+
+      <!-- CTA Button (Desktop) -->
+      <div class="hidden md:block">
+        <a href="/catalog" class="btn-gaming btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          </svg>
+          Browse Games
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button 
+        id="mobile-menu-btn"
+        class="md:hidden p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+        aria-label="Toggle menu"
+      >
+        <svg id="menu-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <svg id="close-icon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden bg-[var(--color-dark-700)] border-t border-[var(--color-dark-500)]">
+    <div class="px-4 py-4 space-y-3">
+      {navLinks.map((link) => (
+        <a 
+          href={link.href}
+          class={`block py-2 px-4 rounded-lg font-medium transition-colors duration-300
+            ${currentPath === link.href 
+              ? 'bg-[var(--color-primary)]/20 text-[var(--color-primary-light)]' 
+              : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-dark-600)] hover:text-[var(--color-text-primary)]'
+            }
+          `}
+        >
+          {link.label}
+        </a>
+      ))}
+      <div class="pt-2">
+        <a href="/catalog" class="btn-gaming btn-primary w-full">
+          Browse Games
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu Toggle Script -->
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  menuBtn?.addEventListener('click', () => {
+    const isOpen = mobileMenu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+</script>

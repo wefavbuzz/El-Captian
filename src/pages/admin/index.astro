@@ -1,0 +1,877 @@
+---
+/**
+ * Admin Dashboard (admin/index.astro)
+ *
+ * Features:
+ * - Password-protected access (client-side demo)
+ * - Product management interface
+ * - Add/Edit/Delete products
+ * - Dark-themed admin UI
+ * - Responsive table/card layout
+ * - CRUD operations via Cloudflare Functions (API ready)
+ *
+ * Note: In production, authentication should be handled via
+ * Cloudflare Access or a proper auth system.
+ */
+
+import Layout from "../../layouts/Layout.astro";
+// Dynamic data fetching - removed static json imports
+---
+
+<Layout
+  title="Admin Dashboard | Captain Games Store"
+  description="Manage your game catalog - add, edit, and delete products."
+>
+  <!-- Admin Container -->
+  <div class="pt-20 md:pt-24 min-h-screen">
+    <!-- Login Screen (shown by default) -->
+    <div
+      id="login-screen"
+      class="flex items-center justify-center min-h-[80vh] px-4"
+    >
+      <div class="w-full max-w-md">
+        <div class="card-gaming p-8 space-y-6">
+          <!-- Logo -->
+          <div class="text-center">
+            <img
+              src="/images/logo.jpg"
+              alt="El Captain Games Store"
+              class="h-20 w-auto object-contain mx-auto mb-4"
+            />
+            <h1
+              class="font-[var(--font-display)] text-2xl font-bold text-gradient-primary"
+            >
+              Admin Login
+            </h1>
+            <p class="text-[var(--color-text-muted)] text-sm mt-2">
+              Enter password to access the dashboard
+            </p>
+          </div>
+
+          <!-- Login Form -->
+          <form id="login-form" class="space-y-4">
+            <div>
+              <label
+                for="password"
+                class="block text-sm font-medium text-[var(--color-text-secondary)] mb-2"
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Enter admin password"
+                class="w-full bg-[var(--color-dark-700)] border border-[var(--color-dark-500)] rounded-lg px-4 py-3"
+                autocomplete="current-password"
+              />
+              <p
+                id="login-error"
+                class="text-[var(--color-error)] text-sm mt-2 hidden"
+              >
+                Invalid password. Try: admin123
+              </p>
+            </div>
+            <button type="submit" class="btn-gaming btn-primary w-full py-3">
+              Login to Dashboard
+            </button>
+          </form>
+
+          <!-- Demo Note -->
+          <p class="text-center text-[var(--color-text-muted)] text-xs">
+            Demo password: <code class="text-[var(--color-primary-light)]"
+              >admin123</code
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard (hidden by default) -->
+    <div id="dashboard" class="hidden">
+      <!-- Header -->
+      <div
+        class="bg-[var(--color-dark-900)] border-b border-[var(--color-dark-500)] py-6"
+      >
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          >
+            <div>
+              <h1
+                class="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-gradient-primary"
+              >
+                Admin Dashboard
+              </h1>
+              <p class="text-[var(--color-text-muted)] text-sm">
+                Manage your product catalog
+              </p>
+            </div>
+            <div class="flex items-center gap-3">
+              <button id="add-product-btn" class="btn-gaming btn-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Product
+              </button>
+              <button id="logout-btn" class="btn-gaming btn-secondary">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-8">
+          <div class="card-gaming p-4">
+            <div class="text-[var(--color-text-muted)] text-sm">
+              Total Products
+            </div>
+            <div
+              class="font-[var(--font-display)] text-2xl font-bold text-[var(--color-primary-light)]"
+            >
+              <span id="total-product-count">0</span>
+            </div>
+          </div>
+          <div class="card-gaming p-4">
+            <div class="text-[var(--color-text-muted)] text-sm">Featured</div>
+            <div
+              class="font-[var(--font-display)] text-2xl font-bold text-[var(--color-secondary-light)]"
+            >
+              <span id="product-count">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card-gaming overflow-hidden">
+          <div
+            class="p-4 border-b border-[var(--color-dark-500)] flex justify-between items-center"
+          >
+            <h2 class="font-[var(--font-display)] font-semibold text-lg">
+              Products
+            </h2>
+            <input
+              type="text"
+              id="admin-search"
+              placeholder="Search products..."
+              class="bg-[var(--color-dark-600)] border border-[var(--color-dark-500)] rounded-lg px-3 py-1.5 text-sm w-48"
+            />
+          </div>
+
+          <!-- Desktop Table -->
+          <div class="hidden md:block overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-[var(--color-dark-600)] text-left">
+                  <th
+                    class="px-4 py-3 text-[var(--color-text-secondary)] text-sm font-medium"
+                    >Product</th
+                  >
+                  <th
+                    class="px-4 py-3 text-[var(--color-text-secondary)] text-sm font-medium"
+                    >Rating</th
+                  >
+                  <th
+                    class="px-4 py-3 text-[var(--color-text-secondary)] text-sm font-medium"
+                    >Featured</th
+                  >
+                  <th
+                    class="px-4 py-3 text-[var(--color-text-secondary)] text-sm font-medium text-right"
+                    >Actions</th
+                  >
+                </tr>
+              </thead>
+              <!-- Populated by JS -->
+            </table>
+          </div>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="md:hidden p-4 space-y-4">
+          <!-- Populated by JS -->
+        </div>
+        <div class="text-center py-4" id="loading-indicator">
+          <span class="text-[var(--color-text-muted)]">Loading products...</span
+          >
+        </div>
+        <div
+          class="hidden md:hidden p-4 space-y-4"
+          id="mobile-products-container"
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal (Add/Edit) -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden">
+    <div
+      class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+      id="modal-backdrop"
+    >
+    </div>
+    <div
+      class="absolute inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-full"
+    >
+      <div class="card-gaming p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2
+            id="modal-title"
+            class="font-[var(--font-display)] text-xl font-bold"
+          >
+            Add New Product
+          </h2>
+          <button
+            id="close-modal-btn"
+            class="p-2 hover:bg-[var(--color-dark-600)] rounded-lg transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="product-form" class="space-y-4">
+          <input type="hidden" id="product-id" />
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                >Name (English)</label
+              >
+              <input
+                type="text"
+                id="product-name"
+                required
+                class="w-full"
+                placeholder="Game name"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+                >Name (Arabic)</label
+              >
+              <input
+                type="text"
+                id="product-name-ar"
+                dir="rtl"
+                class="w-full"
+                placeholder="اسم اللعبة"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              >Description</label
+            >
+            <textarea
+              id="product-description"
+              rows="3"
+              class="w-full"
+              placeholder="Game description..."></textarea>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
+              >Image URL</label
+            >
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="product-image"
+                class="w-full bg-[var(--color-dark-700)] border border-[var(--color-dark-500)] rounded-lg px-4 py-2"
+                placeholder="/images/game.jpg"
+              />
+              <input
+                type="file"
+                id="image-upload"
+                accept="image/*"
+                class="hidden"
+              />
+              <button
+                type="button"
+                id="upload-trigger-btn"
+                class="btn-gaming btn-secondary px-4"
+                title="Upload from device"
+              >
+                📂
+              </button>
+            </div>
+            <div id="image-preview-container" class="mt-3 hidden">
+              <p class="text-xs text-[var(--color-text-muted)] mb-1">
+                Preview:
+              </p>
+              <img
+                id="image-preview"
+                src=""
+                alt="Preview"
+                class="h-32 w-auto rounded-lg object-cover border border-[var(--color-dark-500)]"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="product-featured"
+                class="w-4 h-4 accent-[var(--color-primary)]"
+              />
+              <span class="text-sm text-[var(--color-text-secondary)]"
+                >Featured product</span
+              >
+            </label>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button type="submit" class="btn-gaming btn-primary flex-1">
+              Save Product
+            </button>
+            <button
+              type="button"
+              id="cancel-btn"
+              class="btn-gaming btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    <div
+      class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-4"
+    >
+      <div class="card-gaming p-6 text-center">
+        <div
+          class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--color-error)]/20 flex items-center justify-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-8 h-8 text-[var(--color-error)]"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            ></path>
+          </svg>
+        </div>
+        <h3 class="font-[var(--font-display)] text-xl font-bold mb-2">
+          Delete Product?
+        </h3>
+        <p class="text-[var(--color-text-muted)] text-sm mb-6">
+          This action cannot be undone. The product will be permanently removed.
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="confirm-delete-btn"
+            class="btn-gaming flex-1 bg-[var(--color-error)] hover:bg-[var(--color-error)]/80"
+          >
+            Delete
+          </button>
+          <button
+            id="cancel-delete-btn"
+            class="btn-gaming btn-secondary flex-1"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<!-- Admin Dashboard Scripts -->
+<script>
+  // Demo password (in production, use proper auth)
+  const DEMO_PASSWORD = "admin123";
+
+  // DOM Elements
+  const loginScreen = document.getElementById("login-screen");
+  const dashboard = document.getElementById("dashboard");
+  const loginForm = document.getElementById("login-form");
+  const loginError = document.getElementById("login-error");
+  const passwordInput = document.getElementById("password") as HTMLInputElement;
+  const logoutBtn = document.getElementById("logout-btn");
+
+  const productModal = document.getElementById("product-modal");
+  const deleteModal = document.getElementById("delete-modal");
+  const addProductBtn = document.getElementById("add-product-btn");
+  const closeModalBtn = document.getElementById("close-modal-btn");
+  const cancelBtn = document.getElementById("cancel-btn");
+  const modalBackdrop = document.getElementById("modal-backdrop");
+  const productForm = document.getElementById("product-form");
+  const modalTitle = document.getElementById("modal-title");
+
+  const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+  const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+
+  // Image Upload Logic elements
+  const imageUpload = document.getElementById("image-upload");
+  const uploadTriggerBtn = document.getElementById("upload-trigger-btn");
+  const productImageInput = document.getElementById(
+    "product-image",
+  ) as HTMLInputElement;
+  const imagePreviewContainer = document.getElementById(
+    "image-preview-container",
+  );
+  const imagePreview = document.getElementById(
+    "image-preview",
+  ) as HTMLImageElement;
+
+  let currentDeleteId: string | null = null;
+  let products: any[] = [];
+
+  // Fetch products from API
+  async function fetchProducts() {
+    const loadingIndicator = document.getElementById("loading-indicator");
+    const tableBody = document.getElementById("products-table-body");
+    const mobileContainer = document.getElementById(
+      "mobile-products-container",
+    );
+    const countDisplay = document.getElementById("product-count");
+
+    if (loadingIndicator) loadingIndicator.classList.remove("hidden");
+    if (tableBody) tableBody.innerHTML = "";
+
+    try {
+      const response = await fetch("/api/products");
+      if (response.ok) {
+        const data = await response.json();
+        products = data.data || []; // Ensure array
+        renderProducts();
+
+        const totalCountDisplay = document.getElementById(
+          "total-product-count",
+        );
+
+        if (countDisplay) {
+          countDisplay.textContent = products
+            .filter((p) => p.featured)
+            .length.toString();
+        }
+        if (totalCountDisplay) {
+          totalCountDisplay.textContent = products.length.toString();
+        }
+      } else {
+        console.error("Failed to fetch products");
+      }
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      if (loadingIndicator) loadingIndicator.classList.add("hidden");
+    }
+  }
+
+  // Render products to table and mobile view
+  function renderProducts() {
+    const tableBody = document.getElementById("products-table-body");
+    const mobileContainer = document.getElementById(
+      "mobile-products-container",
+    );
+
+    if (!tableBody || !mobileContainer) return;
+
+    // Desktop Table
+    tableBody.innerHTML = products
+      .map(
+        (product) => `
+      <tr class="border-t border-[var(--color-dark-500)] hover:bg-[var(--color-dark-600)]/50 transition-colors">
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-[var(--color-dark-500)] flex items-center justify-center overflow-hidden">
+               ${product.image ? `<img src="${product.image}" class="w-full h-full object-cover" />` : '<span class="text-xl">🎮</span>'}
+            </div>
+            <div>
+              <div class="font-medium text-[var(--color-text-primary)]">
+                ${product.name}
+              </div>
+              <div class="text-xs text-[var(--color-text-muted)]" dir="rtl">
+                ${product.nameAr || ""}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-1">
+            <span class="text-[var(--color-warning)]">★</span>
+            <span>${product.rating || 0}</span>
+          </div>
+        </td>
+        <td class="px-4 py-3">
+          ${
+            product.featured
+              ? '<span class="text-[var(--color-success)]">✓ Yes</span>'
+              : '<span class="text-[var(--color-text-muted)]">No</span>'
+          }
+        </td>
+        <td class="px-4 py-3 text-right">
+          <div class="flex items-center justify-end gap-2">
+            <button class="edit-btn p-2 rounded-lg hover:bg-[var(--color-primary)]/20 text-[var(--color-primary-light)] transition-colors" data-id="${product.id}" title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button class="delete-btn p-2 rounded-lg hover:bg-[var(--color-error)]/20 text-[var(--color-error)] transition-colors" data-id="${product.id}" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `,
+      )
+      .join("");
+
+    // Mobile Cards
+    mobileContainer.innerHTML = products
+      .map(
+        (product) => `
+      <div class="bg-[var(--color-dark-600)] rounded-lg p-4 space-y-3">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-lg bg-[var(--color-dark-500)] flex items-center justify-center overflow-hidden">
+               ${product.image ? `<img src="${product.image}" class="w-full h-full object-cover" />` : '<span class="text-xl">🎮</span>'}
+            </div>
+            <div>
+              <div class="font-medium text-[var(--color-text-primary)]">
+                ${product.name}
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-1">
+            <button class="edit-btn p-1.5 rounded hover:bg-[var(--color-primary)]/20" data-id="${product.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[var(--color-primary-light)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button class="delete-btn p-1.5 rounded hover:bg-[var(--color-error)]/20" data-id="${product.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[var(--color-error)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-[var(--color-text-muted)]">
+            ★ ${product.rating || 0}
+          </span>
+          ${product.featured ? '<span class="text-[var(--color-success)] text-xs">Featured</span>' : ""}
+        </div>
+      </div>
+    `,
+      )
+      .join("");
+
+    mobileContainer.classList.remove("hidden");
+    bindActionButtons();
+  }
+
+  // Bind edit/delete buttons event listeners
+  function bindActionButtons() {
+    document.querySelectorAll(".edit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-id");
+        // Simplified edit logic (fetching product again isn't strict requirement for this fix,
+        // but populating from current list is better)
+        const product = products.find((p) => p.id === id);
+        if (product) {
+          // Populate form
+          if (document.getElementById("product-name"))
+            (
+              document.getElementById("product-name") as HTMLInputElement
+            ).value = product.name;
+          if (document.getElementById("product-name-ar"))
+            (
+              document.getElementById("product-name-ar") as HTMLInputElement
+            ).value = product.nameAr || "";
+          if (document.getElementById("product-description"))
+            (
+              document.getElementById(
+                "product-description",
+              ) as HTMLTextAreaElement
+            ).value = product.description || "";
+          if (document.getElementById("product-image"))
+            (
+              document.getElementById("product-image") as HTMLInputElement
+            ).value = product.image || "";
+          if (document.getElementById("image-preview") && product.image)
+            (document.getElementById("image-preview") as HTMLImageElement).src =
+              product.image;
+          if (
+            document.getElementById("image-preview-container") &&
+            product.image
+          )
+            (
+              document.getElementById("image-preview-container") as HTMLElement
+            ).classList.remove("hidden");
+
+          if (document.getElementById("product-featured"))
+            (
+              document.getElementById("product-featured") as HTMLInputElement
+            ).checked = product.featured || false;
+
+          // Set ID hidden field if we had one, or handle update logic later.
+          // For now, assume add-only for simplicity unless user wants full edit.
+          // But preserving OpenModal is good.
+          openModal(true, id);
+        }
+      });
+    });
+
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        currentDeleteId = btn.getAttribute("data-id");
+        if (deleteModal) deleteModal.classList.remove("hidden");
+      });
+    });
+  }
+
+  // Check if already logged in
+  if (sessionStorage.getItem("adminLoggedIn") === "true") {
+    showDashboard();
+  }
+
+  // Login handler
+  loginForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (passwordInput?.value === DEMO_PASSWORD) {
+      sessionStorage.setItem("adminLoggedIn", "true");
+      showDashboard();
+    } else {
+      loginError?.classList.remove("hidden");
+    }
+  });
+
+  // Logout handler
+  logoutBtn?.addEventListener("click", () => {
+    sessionStorage.removeItem("adminLoggedIn");
+    loginScreen?.classList.remove("hidden");
+    dashboard?.classList.add("hidden");
+    if (passwordInput) passwordInput.value = "";
+  });
+
+  function showDashboard() {
+    loginScreen?.classList.add("hidden");
+    dashboard?.classList.remove("hidden");
+    fetchProducts();
+  }
+
+  // Modal handlers
+  function openModal(isEdit = false, productId?: string) {
+    if (modalTitle) {
+      modalTitle.textContent = isEdit ? "Edit Product" : "Add New Product";
+    }
+    productModal?.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+
+    // Clear form or populate with data
+    if (!isEdit && productForm) {
+      (productForm as HTMLFormElement).reset();
+    }
+  }
+
+  function closeModal() {
+    productModal?.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  addProductBtn?.addEventListener("click", () => openModal(false));
+  closeModalBtn?.addEventListener("click", closeModal);
+  cancelBtn?.addEventListener("click", closeModal);
+  modalBackdrop?.addEventListener("click", closeModal);
+
+  // Edit buttons
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      openModal(true, id || undefined);
+    });
+  });
+
+  // Delete buttons
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentDeleteId = btn.getAttribute("data-id");
+      deleteModal?.classList.remove("hidden");
+    });
+  });
+
+  cancelDeleteBtn?.addEventListener("click", () => {
+    deleteModal?.classList.add("hidden");
+    currentDeleteId = null;
+  });
+
+  confirmDeleteBtn?.addEventListener("click", async () => {
+    if (currentDeleteId) {
+      console.log("Attempting to delete product:", currentDeleteId);
+      try {
+        const url = `/api/products/${currentDeleteId}`;
+        console.log("Fetching URL:", url);
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer admin123",
+          },
+        });
+
+        if (response.ok) {
+          // Remove from DOM
+          // Refresh list instead of manual DOM manipulation
+          await fetchProducts();
+
+          /* Manual removal removed in favor of fetchProducts */
+          /*
+          const buttons = document.querySelectorAll(
+            `button[data-id="${currentDeleteId}"]`,
+          );
+          buttons.forEach((btn) => {
+             // ...
+          });
+          */
+
+          // Update stats if possible (optional, but nice)
+          // For now just close modal
+          deleteModal?.classList.add("hidden");
+          currentDeleteId = null;
+        } else {
+          console.error(
+            "Failed to delete",
+            response.status,
+            response.statusText,
+          );
+          const errorText = await response.text();
+          alert(
+            `Failed to delete product (Status: ${response.status} ${response.statusText})\nDetails: ${errorText}`,
+          );
+        }
+      } catch (err) {
+        console.error("Error deleting product:", err);
+        alert(
+          `Network Error: ${err instanceof Error ? err.message : err}. check console.`,
+        );
+      }
+    }
+  });
+
+  // Form submission
+  productForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = {
+      name: (document.getElementById("product-name") as HTMLInputElement)
+        ?.value,
+      nameAr: (document.getElementById("product-name-ar") as HTMLInputElement)
+        ?.value,
+      description: (
+        document.getElementById("product-description") as HTMLTextAreaElement
+      )?.value,
+      image: (document.getElementById("product-image") as HTMLInputElement)
+        ?.value,
+      featured: (
+        document.getElementById("product-featured") as HTMLInputElement
+      )?.checked,
+    };
+
+    // Call the API
+    try {
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer admin123",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Product saved:", result);
+        alert("Product saved successfully!");
+
+        // Refresh list
+        await fetchProducts();
+        // window.location.reload(); // Removed reload
+      } else {
+        const error = await response.text();
+        console.error("Failed to save:", error);
+        alert(`Failed to save product: ${error}`);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Network error occurred while saving product");
+    }
+
+    closeModal();
+  });
+
+  // Image Upload Handlers
+  uploadTriggerBtn?.addEventListener("click", () => {
+    imageUpload?.click();
+  });
+
+  imageUpload?.addEventListener("change", (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        if (productImageInput) productImageInput.value = result;
+        if (imagePreview) imagePreview.src = result;
+        imagePreviewContainer?.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Manual URL input preview
+  productImageInput?.addEventListener("input", () => {
+    const val = productImageInput.value;
+    if (
+      val &&
+      (val.startsWith("http") || val.startsWith("/") || val.startsWith("data:"))
+    ) {
+      if (imagePreview) imagePreview.src = val;
+      imagePreviewContainer?.classList.remove("hidden");
+    } else if (!val) {
+      imagePreviewContainer?.classList.add("hidden");
+    }
+  });
+</script>

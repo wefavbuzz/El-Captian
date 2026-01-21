@@ -1,0 +1,17 @@
+{
+  "name": "captain-games-store",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "dev:wrangler": "npx wrangler pages dev . --astro --port 8788",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.11",
+    "tailwindcss": "^4.1.18"
+  }
+}

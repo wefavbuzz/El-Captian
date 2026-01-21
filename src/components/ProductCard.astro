@@ -1,0 +1,166 @@
+---
+/**
+ * ProductCard.astro - Gaming product card component
+ *
+ * Features:
+ * - Responsive card design with gaming aesthetics
+ * - Image with overlay on hover
+ * - Price display with sale support
+ * - Platform badges
+ * - Category badge
+ * - Rating display
+ * - Smooth hover animations
+ */
+
+interface Props {
+  id: string;
+  name: string;
+  nameAr?: string;
+  price: number;
+  originalPrice?: number | null;
+  category: string;
+  description: string;
+  image: string;
+  rating?: number;
+  platform?: string[];
+  featured?: boolean;
+}
+
+const {
+  id,
+  name,
+  price,
+  originalPrice,
+  category,
+  description,
+  image,
+  rating = 0,
+  platform = [],
+  featured = false,
+} = Astro.props;
+
+const isOnSale = originalPrice && originalPrice > price;
+const isFree = price === 0;
+const discount = isOnSale ? Math.round((1 - price / originalPrice) * 100) : 0;
+
+// Map category to badge style
+const categoryStyles: Record<string, string> = {
+  action: "badge-primary",
+  strategy: "badge-secondary",
+  racing: "badge-accent",
+  rpg: "badge-primary",
+  horror: "badge-accent",
+  simulation: "badge-secondary",
+  moba: "badge-primary",
+  sports: "badge-secondary",
+};
+---
+
+<article class="card-gaming group overflow-hidden relative">
+  <!-- Sale Badge (Removed) -->
+
+  <!-- Featured Badge -->
+  {
+    featured && (
+      <div class="absolute top-3 right-3 z-10 px-2 py-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white text-xs font-bold rounded-md">
+        ⭐ Featured
+      </div>
+    )
+  }
+
+  <!-- Image Container -->
+  <div class="relative aspect-[16/10] overflow-hidden">
+    <img
+      src={image}
+      alt={name}
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+      loading="lazy"
+      onerror="this.onerror=null; this.src='/images/placeholder.jpg';"
+    />
+
+    <!-- Gradient Overlay -->
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-[var(--color-dark-700)] via-transparent to-transparent opacity-60"
+    >
+    </div>
+
+    <!-- Hover Overlay with CTA -->
+    <div
+      class="absolute inset-0 bg-[var(--color-primary)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-sm"
+    >
+      <a
+        href={`/catalog/${id}`}
+        class="btn-gaming btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100"
+      >
+        View Details
+      </a>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-4 space-y-3">
+    <!-- Rating -->
+    <div class="flex items-center justify-between">
+      <div></div>
+      <!-- Spacer -->
+      {
+        rating > 0 && (
+          <div class="flex items-center gap-1 text-[var(--color-warning)] text-sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4 fill-current"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span>{rating.toFixed(1)}</span>
+          </div>
+        )
+      }
+    </div>
+
+    <!-- Title -->
+    <h3
+      class="font-[var(--font-display)] font-semibold text-[var(--color-text-primary)] text-lg line-clamp-1 group-hover:text-[var(--color-primary-light)] transition-colors"
+    >
+      {name}
+    </h3>
+
+    <!-- Description -->
+    <p class="text-[var(--color-text-muted)] text-sm line-clamp-2">
+      {description}
+    </p>
+
+    <!-- Platforms -->
+    {
+      platform.length > 0 && (
+        <div class="flex flex-wrap gap-1">
+          {platform.map((p) => (
+            <span class="text-xs px-2 py-0.5 bg-[var(--color-dark-600)] text-[var(--color-text-secondary)] rounded">
+              {p}
+            </span>
+          ))}
+        </div>
+      )
+    }
+
+    <!-- Price -->
+    <!-- Price (Removed) -->
+  </div>
+</article>
+
+<style>
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
